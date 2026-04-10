@@ -1,1 +1,22 @@
-
+{
+  "name": "ÖLÇEKLE",
+  "short_name": "ÖLÇEKLE",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#FFD8A8",
+  "description": "Pratik mutfak ölçü asistanı.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
