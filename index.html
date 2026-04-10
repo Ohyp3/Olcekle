@@ -1,1 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ÖLÇEKLE - Mutfak Asistanı</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #FFD8A8;
+            --text: #4d4d4d;
+            --accent: #C3FAE8;
+            --border: rgba(233, 236, 239, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --radius-ui: 24px;
+            --kapsul-text: #854d0e;
+        }
 
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: var(--text); margin: 0; padding: 0; 
+            background: #FDFBF7;
+            background-size: cover; -webkit-tap-highlight-color: transparent;
+        }
+
+        header { 
+            position: sticky; top: 0; z-index: 100; background: var(--card-bg);
+            backdrop-filter: blur(20px); text-align: center; padding: 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        h1 { font-size: 1.5rem; letter-spacing: 3px; margin: 0; font-weight: 900; text-transform: uppercase; color: #333; flex: 1; margin-left: 50px; }
+
+        .lang-toggle {
+            background: #fff; border: 1px solid var(--border); padding: 8px 12px; border-radius: 12px;
+            font-weight: 800; cursor: pointer; font-size: 0.7rem; color: #4d4d4d;
+        }
+
+        .container { padding: 15px; padding-bottom: 220px; }
+
+        .section-title {
+            font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+            margin: 30px 0 12px 8px; letter-spacing: 1.8px; color: #888;
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(15px);
+            border-radius: var(--radius-ui); padding: 20px; border: 1px solid var(--border); margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        input, select { 
+            background: rgba(255,255,255,0.95); border: 1px solid var(--border); 
+            padding: 15px; border-radius: 16px; font-size: 1rem; width: 100%; box-sizing: border-box; outline: none;
+        }
+
+        .target-box-wrapper { 
+            background: linear-gradient(135deg, #FFD8A8 0%, #ffc078 100%); 
+            padding: 30px; border-radius: 30px; text-align: center; margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 15px 35px rgba(255, 146, 43, 0.2);
+        }
+        
+        .target-input-box { 
+            background: #fff !important; color: var(--kapsul-text) !important; 
+            font-size: 3.5rem !important; font-weight: 900; width: 150px; text-align: center; border-radius: 20px;
+            border: none !important;
+        }
+
+        .ing-row { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
+        .ing-amt { width: 85px !important; text-align: center; font-weight: 900; color: #d35400; }
+        .ing-unit { width: 150px !important; font-size: 0.85rem; font-weight: 700; color: #666; }
+        .btn-remove { background: #fff1f2; border: none; color: #f43f5e; font-size: 1.2rem; cursor: pointer; width: 40px; height: 40px; border-radius: 12px; }
+
+        .result-item { display: flex; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .result-val { min-width: 100px; color: #d35400; font-weight: 900; font-size: 1.6rem; }
+        .result-name { flex: 1; margin-left: 15px; font-weight: 700; font-size: 1.1rem; color: #2d3748; }
+
+        .guide-panel { background: #fff; border-radius: 20px; padding: 20px; border: 2px solid var(--accent); }
+        .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8rem; }
+        .guide-item { background: #f0fff4; padding: 10px; border-radius: 12px; color: #2f855a; font-weight: 700; }
+
+        .fab-container {
+            position: fixed; bottom: 0; left: 0; right: 0; padding: 20px;
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+            display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 12px;
+            z-index: 1000; border-top: 1px solid var(--border);
+        }
+
+        .btn { 
+            height: 70px; border-radius: 22px; font-weight: 900; border: none;
+            font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; gap: 6px; cursor: pointer; text-transform: uppercase;
+        }
+        
+        .btn-suggest { background: #FFE3E3; color: #e53e3e; }
+        .btn-share { background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB; }
+        .btn-save { background: var(--accent); color: #065f46; }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+        .modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 30px; width: 85%; max-width: 400px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ÖLÇEKLE</h1>
+    <button class="lang-toggle" onclick="toggleLang()" id="langBtn">EN</button>
+</header>
+
+<div class="container">
+    <div class="section-title" id="t-recipeInfo">📝 TARİF BİLGİLERİ</div>
+    <div class="card">
+        <input type="text" id="recipeName" placeholder="Tarif Adı" style="font-weight: 800; margin-bottom: 15px;">
+        <div style="display:flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 12px; border-radius: 16px;">
+            <label style="font-size: 0.75rem; font-weight: 900; color: #64748b;" id="t-baseServ">👥 ASIL KİŞİ SAYISI</label>
+            <input type="number" id="baseServings" value="4" style="width: 70px; text-align: center; font-weight: 900; background: transparent; border: none;" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="section-title" id="t-ingredients">🛒 MALZEMELER</div>
+    <div id="ingredientList"></div>
+    <button onclick="addRow()" id="t-addRow" style="background:rgba(255,255,255,0.6); border:2px dashed #cbd5e0; width:100%; padding:18px; border-radius:22px; font-weight:800; cursor:pointer; margin-bottom: 25px;">➕ YENİ SATIR EKLE</button>
+
+    <div class="section-title" id="t-targetTitle">🎯 HEDEF SOFRA</div>
+    <div class="target-box-wrapper">
+        <input type="number" id="targetServings" class="target-input-box" value="6" oninput="calculate()">
+        <span style="font-size: 0.85rem; font-weight: 900; color: var(--kapsul-text); display: block; margin-top: 12px;" id="t-howMany">KAÇ KİŞİLİK PİŞİRİLECEK?</span>
+    </div>
+
+    <div class="section-title" id="t-results">📊 YENİ ÖLÇÜLER</div>
+    <div class="card" id="resultContainer" style="border-top: 8px solid #ff922b;"></div>
+
+    <div class="section-title" id="t-archive">🗄️ KAYDEDİLENLER</div>
+    <div id="archiveContainer"></div>
+
+    <div class="section-title" id="t-guide">💡 ÖLÇÜ REHBERİ</div>
+    <div class="guide-panel" id="guideContent"></div>
+</div>
+
+<div class="fab-container">
+    <button class="btn btn-suggest" onclick="showRandomRecipe()"><span id="t-btnSugIcon">✨</span><span id="t-btnSugText">ÖNERİ</span></button>
+    <button class="btn btn-share" onclick="shareRecipe()"><span>📤</span><span id="t-btnShareText">PAYLAŞ</span></button>
+    <button class="btn btn-save" onclick="saveRecipe()"><span>💾</span><span id="t-btnSaveText">KAYDET</span></button>
+</div>
+
+<div id="suggestModal" class="modal">
+    <div class="modal-content">
+        <h2 id="sTitle" style="margin:0"></h2>
+        <p id="sIngList" style="white-space: pre-line; color: #666;"></p>
+        <button onclick="applySuggestion()" style="width:100%; padding:15px; background:var(--primary); border:none; border-radius:15px; font-weight:bold;">TARİFİ YÜKLE</button>
+        <button onclick="closeModal()" style="width:100%; margin-top:10px; background:none; border:none; color:#999;">KAPAT</button>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'tr';
+    const langs = {
+        tr: {
+            recipeInfo: "📝 TARİF BİLGİLERİ", baseServ: "👥 ASIL KİŞİ SAYISI", ingredients: "🛒 MALZEMELER",
+            addRow: "➕ YENİ SATIR EKLE", targetTitle: "🎯 HEDEF SOFRA", howMany: "KAÇ KİŞİLİK PİŞİRİLECEK?",
+            results: "📊 YENİ ÖLÇÜLER", archive: "🗄️ KAYDEDİLENLER", guide: "💡 ÖLÇÜ REHBERİ",
+            btnSug: "ÖNERİ", btnShare: "PAYLAŞ", btnSave: "KAYDET", placeholderIng: "Malzeme...",
+            guideItems: ["1 Bardak = 200ml", "1 Çay B. = 100ml", "1 Y.Kaşığı = 15ml", "1 T.Kaşığı = 10ml"],
+            units: ["Gram", "Mililitre", "Bardak", "Kaşık", "Adet"]
+        },
+        en: {
+            recipeInfo: "📝 RECIPE INFO", baseServ: "👥 BASE SERVINGS", ingredients: "🛒 INGREDIENTS",
+            addRow: "➕ ADD ROW", targetTitle: "🎯 TARGET", howMany: "FOR HOW MANY PEOPLE?",
+            results: "📊 NEW QUANTITY", archive: "🗄️ SAVED", guide: "💡 UNIT GUIDE",
+            btnSug: "SUGGEST", btnShare: "SHARE", btnSave: "SAVE", placeholderIng: "Ingredient...",
+            guideItems: ["1 Cup = 200ml", "1 Tea Glass = 100ml", "1 Tbsp = 15ml", "1 Tsp = 10ml"],
+            units: ["Gram", "Milliliter", "Cup", "Spoon", "Piece"]
+        }
+    };
+
+    function toggleLang() {
+        currentLang = currentLang === 'tr' ? 'en' : 'tr';
+        document.getElementById('langBtn').innerText = currentLang === 'tr' ? 'EN' : 'TR';
+        updateUI();
+    }
+
+    function updateUI() {
+        const l = langs[currentLang];
+        document.getElementById('t-recipeInfo').innerText = l.recipeInfo;
+        document.getElementById('t-baseServ').innerText = l.baseServ;
+        document.getElementById('t-ingredients').innerText = l.ingredients;
+        document.getElementById('t-addRow').innerText = l.addRow;
+        document.getElementById('t-targetTitle').innerText = l.targetTitle;
+        document.getElementById('t-howMany').innerText = l.howMany;
+        document.getElementById('t-results').innerText = l.results;
+        document.getElementById('t-archive').innerText = l.archive;
+        document.getElementById('t-guide').innerText = l.guide;
+        document.getElementById('t-btnSugText').innerText = l.btnSug;
+        document.getElementById('t-btnShareText').innerText = l.btnShare;
+        document.getElementById('t-btnSaveText').innerText = l.btnSave;
+        
+        const gGrid = `<div class="guide-grid">${l.guideItems.map(i => `<div class="guide-item">${i}</div>`).join('')}</div>`;
+        document.getElementById('guideContent').innerHTML = gGrid;
+        calculate();
+        renderArchive();
+    }
+
+    function addRow(amt="", unit="", name="") {
+        const div = document.createElement('div');
+        div.className = 'ing-row';
+        const units = langs[currentLang].units;
+        const opts = units.map(u => `<option value="${u}" ${unit==u?'selected':''}>${u}</option>`).join('');
+        div.innerHTML = `
+            <input type="number" class="ing-amt" value="${amt}" placeholder="0" oninput="calculate()">
+            <select class="ing-unit" onchange="calculate()">${opts}</select>
+            <input type="text" class="ing-name" value="${name}" placeholder="${langs[currentLang].placeholderIng}" oninput="calculate()" style="flex:1">
+            <button class="btn-remove" onclick="this.parentElement.remove();calculate()">✕</button>
+        `;
+        document.getElementById('ingredientList').appendChild(div);
+    }
+
+    function calculate() {
+        const base = parseFloat(document.getElementById('baseServings').value) || 1;
+        const target = parseFloat(document.getElementById('targetServings').value) || 1;
+        const ratio = target / base;
+        const container = document.getElementById('resultContainer');
+        container.innerHTML = '';
+        
+        document.querySelectorAll('.ing-row').forEach(row => {
+            const amt = parseFloat(row.querySelector('.ing-amt').value) || 0;
+            const unit = row.querySelector('.ing-unit').value;
+            const name = row.querySelector('.ing-name').value;
+            if(name) {
+                const val = (amt * ratio).toFixed(1).replace('.0', '');
+                container.innerHTML += `<div class="result-item"><div class="result-val">${val} ${unit}</div><div class="result-name">${name}</div></div>`;
+            }
+        });
+    }
+
+    function shareRecipe() {
+        const name = document.getElementById('recipeName').value || "Tarif";
+        const target = document.getElementById('targetServings').value;
+        let text = `🍳 *${name}* (${target} Kişilik)\n\n`;
+        document.querySelectorAll('.result-item').forEach(item => {
+            text += `• ${item.querySelector('.result-val').innerText} ${item.querySelector('.result-name').innerText}\n`;
+        });
+        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    }
+
+    function saveRecipe() {
+        const data = {
+            name: document.getElementById('recipeName').value || "İsimsiz",
+            base: document.getElementById('baseServings').value,
+            ing: Array.from(document.querySelectorAll('.ing-row')).map(r => ({
+                a: r.querySelector('.ing-amt').value, u: r.querySelector('.ing-unit').value, n: r.querySelector('.ing-name').value
+            }))
+        };
+        let db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
+        db.push(data);
+        localStorage.setItem('olcekle_db', JSON.stringify(db));
+        renderArchive();
+        alert("Kaydedildi!");
+    }
+
+    function renderArchive() {
+        const db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
+        document.getElementById('archiveContainer').innerHTML = db.map((item, index) => `
+            <div class="card" style="padding:10px; display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>${item.name} (${item.base})</span>
+                <button onclick="deleteRecipe(${index})" style="color:red; background:none; border:none; font-weight:bold;">Sil</button>
+            </div>
+        `).join('');
+    }
+
+    function deleteRecipe(i) {
+        let db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
+        db.splice(i, 1);
+        localStorage.setItem('olcekle_db', JSON.stringify(db));
+        renderArchive();
+    }
+
+    let tempSug = null;
+    function showRandomRecipe() {
+        const pool = [
+            { name: "Mercimek Çorbası", base: 4, ing: [{a:1, u:"Bardak", n:"Mercimek"}, {a:1, u:"Adet", n:"Soğan"}] },
+            { name: "Pankek", base: 2, ing: [{a:1, u:"Adet", n:"Yumurta"}, {a:1, u:"Bardak", n:"Süt"}] }
+        ];
+        tempSug = pool[Math.floor(Math.random()*pool.length)];
+        document.getElementById('sTitle').innerText = tempSug.name;
+        document.getElementById('sIngList').innerText = tempSug.ing.map(i => `• ${i.a} ${i.u} ${i.n}`).join('\n');
+        document.getElementById('suggestModal').style.display = 'block';
+    }
+
+    function applySuggestion() {
+        document.getElementById('recipeName').value = tempSug.name;
+        document.getElementById('baseServings').value = tempSug.base;
+        document.getElementById('ingredientList').innerHTML = '';
+        tempSug.ing.forEach(i => addRow(i.a, i.u, i.n));
+        calculate();
+        closeModal();
+    }
+
+    function closeModal() { document.getElementById('suggestModal').style.display = 'none'; }
+
+    window.onload = () => { updateUI(); addRow(); };
+</script>
+</body>
+</html>
