@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ÖLÇEKLE - Mutfak Asistanı</title>
-    <link rel="manifest" href="manifest.json">
+    <title>ÖLÇEKLE - Profesyonel Mutfak Asistanı</title>
     <style>
         :root {
             --primary: #FFD8A8;
@@ -19,7 +18,7 @@
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             color: var(--text); margin: 0; padding: 0; 
-            background: #FDFBF7;
+            background: #FDFBF7 url('arkaplan.jpg') no-repeat center center fixed;
             background-size: cover; -webkit-tap-highlight-color: transparent;
         }
 
@@ -33,10 +32,10 @@
 
         .lang-toggle {
             background: #fff; border: 1px solid var(--border); padding: 8px 12px; border-radius: 12px;
-            font-weight: 800; cursor: pointer; font-size: 0.7rem; color: #4d4d4d;
+            font-weight: 800; cursor: pointer; font-size: 0.7rem; color: #4d4d4d; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        .container { padding: 15px; padding-bottom: 220px; }
+        .container { padding: 15px; padding-bottom: 220px; position: relative; z-index: 1; }
 
         .section-title {
             font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
@@ -72,12 +71,18 @@
         .btn-remove { background: #fff1f2; border: none; color: #f43f5e; font-size: 1.2rem; cursor: pointer; width: 40px; height: 40px; border-radius: 12px; }
 
         .result-item { display: flex; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .result-val { min-width: 100px; color: #d35400; font-weight: 900; font-size: 1.6rem; }
+        .result-val { min-width: 120px; color: #d35400; font-weight: 900; font-size: 1.6rem; }
+        .result-unit-text { font-size: 0.75rem; color: #a0aec0; margin-left: 4px; font-weight: 800; text-transform: uppercase; }
         .result-name { flex: 1; margin-left: 15px; font-weight: 700; font-size: 1.1rem; color: #2d3748; }
 
         .guide-panel { background: #fff; border-radius: 20px; padding: 20px; border: 2px solid var(--accent); }
         .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.8rem; }
-        .guide-item { background: #f0fff4; padding: 10px; border-radius: 12px; color: #2f855a; font-weight: 700; }
+        .guide-item { background: #f0fff4; padding: 10px; border-radius: 12px; color: #2f855a; font-weight: 700; border: 1px solid rgba(0,0,0,0.03); }
+
+        .archive-item {
+            background: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
+        }
 
         .fab-container {
             position: fixed; bottom: 0; left: 0; right: 0; padding: 20px;
@@ -96,8 +101,18 @@
         .btn-share { background: #E3F2FD; color: #1976D2; border: 1px solid #BBDEFB; }
         .btn-save { background: var(--accent); color: #065f46; }
 
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
-        .modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 30px; width: 85%; max-width: 400px; }
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+        }
+
+        .modal-content {
+            background: white; margin: 8% auto; padding: 30px; border-radius: 35px;
+            width: 88%; max-width: 480px; position: relative; max-height: 80vh; overflow-y: auto;
+        }
+
+        .suggest-title { font-size: 1.6rem; font-weight: 900; color: #2d3748; text-align: center; margin-bottom: 20px; }
+        .suggest-text { font-size: 1rem; line-height: 1.6; color: #4a5568; background: #f7fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px; white-space: pre-line; }
     </style>
 </head>
 <body>
@@ -119,18 +134,18 @@
 
     <div class="section-title" id="t-ingredients">🛒 MALZEMELER</div>
     <div id="ingredientList"></div>
-    <button onclick="addRow()" id="t-addRow" style="background:rgba(255,255,255,0.6); border:2px dashed #cbd5e0; width:100%; padding:18px; border-radius:22px; font-weight:800; cursor:pointer; margin-bottom: 25px;">➕ YENİ SATIR EKLE</button>
+    <button onclick="addRow()" id="t-addRow" style="background:rgba(255,255,255,0.6); border:2px dashed #cbd5e0; width:100%; padding:18px; border-radius:22px; font-weight:800; cursor:pointer; margin-bottom: 25px; color: #718096;">➕ YENİ SATIR EKLE</button>
 
     <div class="section-title" id="t-targetTitle">🎯 HEDEF SOFRA</div>
     <div class="target-box-wrapper">
         <input type="number" id="targetServings" class="target-input-box" value="6" oninput="calculate()">
-        <span style="font-size: 0.85rem; font-weight: 900; color: var(--kapsul-text); display: block; margin-top: 12px;" id="t-howMany">KAÇ KİŞİLİK PİŞİRİLECEK?</span>
+        <span style="font-size: 0.85rem; font-weight: 900; color: var(--kapsul-text); display: block; margin-top: 12px; letter-spacing: 1px;" id="t-howMany">KAÇ KİŞİLİK PİŞİRİLECEK?</span>
     </div>
 
     <div class="section-title" id="t-results">📊 YENİ ÖLÇÜLER</div>
     <div class="card" id="resultContainer" style="border-top: 8px solid #ff922b;"></div>
 
-    <div class="section-title" id="t-archive">🗄️ KAYDEDİLENLER</div>
+    <div class="section-title" id="t-archive">🗄️ KAYDEDİLEN TARİFLER</div>
     <div id="archiveContainer"></div>
 
     <div class="section-title" id="t-guide">💡 ÖLÇÜ REHBERİ</div>
@@ -145,10 +160,14 @@
 
 <div id="suggestModal" class="modal">
     <div class="modal-content">
-        <h2 id="sTitle" style="margin:0"></h2>
-        <p id="sIngList" style="white-space: pre-line; color: #666;"></p>
-        <button onclick="applySuggestion()" style="width:100%; padding:15px; background:var(--primary); border:none; border-radius:15px; font-weight:bold;">TARİFİ YÜKLE</button>
-        <button onclick="closeModal()" style="width:100%; margin-top:10px; background:none; border:none; color:#999;">KAPAT</button>
+        <div id="sIcon" style="font-size: 4rem; text-align: center; margin-bottom: 10px;">🥘</div>
+        <div class="suggest-title" id="sTitle">...</div>
+        <div class="suggest-text" id="sIngList"></div>
+        <div class="modal-actions">
+            <button class="btn-modal btn-next" onclick="showRandomRecipe()" id="t-modalNext">DİĞER ➔</button>
+            <button class="btn-modal btn-apply" id="applyBtn">SEÇ ✓</button>
+        </div>
+        <button onclick="closeModal()" style="background:none; border:none; color:#cbd5e0; margin-top:25px; font-weight:900; cursor:pointer; width: 100%; font-size: 0.8rem;" id="t-modalClose">KAPAT</button>
     </div>
 </div>
 
@@ -158,18 +177,20 @@
         tr: {
             recipeInfo: "📝 TARİF BİLGİLERİ", baseServ: "👥 ASIL KİŞİ SAYISI", ingredients: "🛒 MALZEMELER",
             addRow: "➕ YENİ SATIR EKLE", targetTitle: "🎯 HEDEF SOFRA", howMany: "KAÇ KİŞİLİK PİŞİRİLECEK?",
-            results: "📊 YENİ ÖLÇÜLER", archive: "🗄️ KAYDEDİLENLER", guide: "💡 ÖLÇÜ REHBERİ",
-            btnSug: "ÖNERİ", btnShare: "PAYLAŞ", btnSave: "KAYDET", placeholderIng: "Malzeme...",
-            guideItems: ["1 Bardak = 200ml", "1 Çay B. = 100ml", "1 Y.Kaşığı = 15ml", "1 T.Kaşığı = 10ml"],
-            units: ["Gram", "Mililitre", "Bardak", "Kaşık", "Adet"]
+            results: "📊 YENİ ÖLÇÜLER", archive: "🗄️ KAYDEDİLEN TARİFLER", guide: "💡 ÖLÇÜ REHBERİ",
+            btnSug: "ÖNERİ", btnShare: "PAYLAŞ", btnSave: "KAYDET", modalNext: "DİĞER ➔", modalClose: "KAPAT",
+            placeholderName: "Tarif Adı", placeholderIng: "Malzeme...", noIng: "HENÜZ MALZEME YOK",
+            guideItems: ["🥛 1 Su Bardağı = 200 ml", "☕ 1 Çay Bardağı = 100 ml", "🥄 1 Yemek Kaşığı = 15 ml", "🥄 1 Tatlı Kaşığı = 10 ml", "⚖️ 1 Su Bardağı Un = 110 gr", "⚖️ 1 Su Bardağı Şeker = 170 gr", "⚖️ 1 Yemek Kaşığı Yağ = 12 gr", "🧂 1 Çay Kaşığı = 5 ml"],
+            units: ["Gram", "Mililitre", "Su Bardağı", "Çay Bardağı", "Yemek Kaşığı", "Tatlı Kaşığı", "Adet", "Paket"]
         },
         en: {
-            recipeInfo: "📝 RECIPE INFO", baseServ: "👥 BASE SERVINGS", ingredients: "🛒 INGREDIENTS",
-            addRow: "➕ ADD ROW", targetTitle: "🎯 TARGET", howMany: "FOR HOW MANY PEOPLE?",
-            results: "📊 NEW QUANTITY", archive: "🗄️ SAVED", guide: "💡 UNIT GUIDE",
-            btnSug: "SUGGEST", btnShare: "SHARE", btnSave: "SAVE", placeholderIng: "Ingredient...",
-            guideItems: ["1 Cup = 200ml", "1 Tea Glass = 100ml", "1 Tbsp = 15ml", "1 Tsp = 10ml"],
-            units: ["Gram", "Milliliter", "Cup", "Spoon", "Piece"]
+            recipeInfo: "📝 RECIPE INFO", baseServ: "👥 ORIGINAL SERVINGS", ingredients: "🛒 INGREDIENTS",
+            addRow: "➕ ADD NEW ROW", targetTitle: "🎯 TARGET TABLE", howMany: "HOW MANY PEOPLE?",
+            results: "📊 NEW QUANTITIES", archive: "🗄️ SAVED RECIPES", guide: "💡 UNIT GUIDE",
+            btnSug: "SUGGEST", btnShare: "SHARE", btnSave: "SAVE", modalNext: "NEXT ➔", modalClose: "CLOSE",
+            placeholderName: "Recipe Name", placeholderIng: "Ingredient...", noIng: "NO INGREDIENTS YET",
+            guideItems: ["🥛 1 Cup = 200 ml", "☕ 1 Tea Glass = 100 ml", "🥄 1 Tablespoon = 15 ml", "🥄 1 Teaspoon = 10 ml", "⚖️ 1 Cup Flour = 110 gr", "⚖️ 1 Cup Sugar = 170 gr", "⚖️ 1 Tbsp Oil = 12 gr", "🧂 1 Small Spoon = 5 ml"],
+            units: ["Grams", "Milliliters", "Cups", "Tea Glass", "Tablespoon", "Teaspoon", "Piece", "Pack"]
         }
     };
 
@@ -193,25 +214,41 @@
         document.getElementById('t-btnSugText').innerText = l.btnSug;
         document.getElementById('t-btnShareText').innerText = l.btnShare;
         document.getElementById('t-btnSaveText').innerText = l.btnSave;
+        document.getElementById('t-modalNext').innerText = l.modalNext;
+        document.getElementById('t-modalClose').innerText = l.modalClose;
+        document.getElementById('recipeName').placeholder = l.placeholderName;
         
-        const gGrid = `<div class="guide-grid">${l.guideItems.map(i => `<div class="guide-item">${i}</div>`).join('')}</div>`;
-        document.getElementById('guideContent').innerHTML = gGrid;
+        const gGrid = document.createElement('div');
+        gGrid.className = 'guide-grid';
+        l.guideItems.forEach(item => {
+            const div = document.createElement('div'); div.className = 'guide-item'; div.innerText = item;
+            gGrid.appendChild(div);
+        });
+        document.getElementById('guideContent').innerHTML = '';
+        document.getElementById('guideContent').appendChild(gGrid);
+        
+        document.querySelectorAll('.ing-unit').forEach(select => {
+            const currentVal = select.value;
+            select.innerHTML = l.units.map(u => `<option value="${u}">${u}</option>`).join('');
+        });
         calculate();
         renderArchive();
     }
 
-    function addRow(amt="", unit="", name="") {
+    function addRow(amt = "", unit = "", name = "") {
+        const l = langs[currentLang];
         const div = document.createElement('div');
         div.className = 'ing-row';
-        const units = langs[currentLang].units;
-        const opts = units.map(u => `<option value="${u}" ${unit==u?'selected':''}>${u}</option>`).join('');
+        const defaultUnit = unit || l.units[0];
+        let opts = l.units.map(u => `<option value="${u}" ${defaultUnit==u?'selected':''}>${u}</option>`).join('');
         div.innerHTML = `
-            <input type="number" class="ing-amt" value="${amt}" placeholder="0" oninput="calculate()">
+            <input type="number" class="ing-amt" value="${amt}" oninput="calculate()" placeholder="0">
             <select class="ing-unit" onchange="calculate()">${opts}</select>
-            <input type="text" class="ing-name" value="${name}" placeholder="${langs[currentLang].placeholderIng}" oninput="calculate()" style="flex:1">
+            <input type="text" class="ing-name" value="${name}" placeholder="${l.placeholderIng}" oninput="calculate()" style="flex:1">
             <button class="btn-remove" onclick="this.parentElement.remove();calculate()">✕</button>
         `;
         document.getElementById('ingredientList').appendChild(div);
+        calculate();
     }
 
     function calculate() {
@@ -226,78 +263,106 @@
             const unit = row.querySelector('.ing-unit').value;
             const name = row.querySelector('.ing-name').value;
             if(name) {
-                const val = (amt * ratio).toFixed(1).replace('.0', '');
-                container.innerHTML += `<div class="result-item"><div class="result-val">${val} ${unit}</div><div class="result-name">${name}</div></div>`;
+                const newAmt = (amt * ratio).toFixed(1).replace('.0', '');
+                container.innerHTML += `<div class="result-item"><div class="result-val">${newAmt}<span class="result-unit-text">${unit}</span></div><div class="result-name">🍽️ ${name}</div></div>`;
             }
         });
+        if(!container.innerHTML) container.innerHTML = `<div style="text-align:center; color:#cbd5e0; padding:20px; font-weight:800;">${langs[currentLang].noIng}</div>`;
     }
 
     function shareRecipe() {
-        const name = document.getElementById('recipeName').value || "Tarif";
+        const name = document.getElementById('recipeName').value || (currentLang === 'tr' ? "İsimsiz Tarif" : "Unnamed Recipe");
         const target = document.getElementById('targetServings').value;
-        let text = `🍳 *${name}* (${target} Kişilik)\n\n`;
-        document.querySelectorAll('.result-item').forEach(item => {
-            text += `• ${item.querySelector('.result-val').innerText} ${item.querySelector('.result-name').innerText}\n`;
+        let shareText = `🍳 *${name}* (${target} ${currentLang === 'tr' ? 'Kişilik' : 'People'})\n\n`;
+        
+        const items = document.querySelectorAll('.result-item');
+        if (items.length === 0) {
+            alert(currentLang === 'tr' ? "Paylaşılacak malzeme yok!" : "No ingredients to share!");
+            return;
+        }
+
+        items.forEach(item => {
+            const val = item.querySelector('.result-val').innerText;
+            const ingName = item.querySelector('.result-name').innerText.replace('🍽️ ', '');
+            shareText += `• ${val} ${ingName}\n`;
         });
-        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+
+        shareText += `\n📱 _Ölçekle Uygulaması ile Hazırlandı_`;
+
+        if (navigator.share) {
+            navigator.share({ title: name, text: shareText }).catch(console.error);
+        } else {
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(url, '_blank');
+        }
     }
 
     function saveRecipe() {
+        const name = document.getElementById('recipeName').value || "Unnamed";
         const data = {
-            name: document.getElementById('recipeName').value || "İsimsiz",
-            base: document.getElementById('baseServings').value,
+            id: Date.now(), name, base: document.getElementById('baseServings').value,
             ing: Array.from(document.querySelectorAll('.ing-row')).map(r => ({
                 a: r.querySelector('.ing-amt').value, u: r.querySelector('.ing-unit').value, n: r.querySelector('.ing-name').value
             }))
         };
-        let db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
+        const db = JSON.parse(localStorage.getItem('olcekle_final')) || [];
         db.push(data);
-        localStorage.setItem('olcekle_db', JSON.stringify(db));
+        localStorage.setItem('olcekle_final', JSON.stringify(db));
         renderArchive();
-        alert("Kaydedildi!");
+        alert("✅ " + (currentLang === 'tr' ? "Kaydedildi!" : "Saved!"));
     }
 
     function renderArchive() {
-        const db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
-        document.getElementById('archiveContainer').innerHTML = db.map((item, index) => `
-            <div class="card" style="padding:10px; display:flex; justify-content:space-between; margin-bottom:5px;">
-                <span>${item.name} (${item.base})</span>
-                <button onclick="deleteRecipe(${index})" style="color:red; background:none; border:none; font-weight:bold;">Sil</button>
+        const db = JSON.parse(localStorage.getItem('olcekle_final')) || [];
+        const container = document.getElementById('archiveContainer');
+        container.innerHTML = db.map(item => `
+            <div class="archive-item" onclick="loadRecipe(${item.id})">
+                <span style="font-weight:800; color:#4a5568;">📂 ${item.name} (${item.base})</span>
+                <span onclick="event.stopPropagation(); deleteRecipe(${item.id})" style="color:#f43f5e; font-weight:bold; cursor:pointer;">SİL / DEL</span>
             </div>
-        `).join('');
+        `).reverse().join('');
     }
 
-    function deleteRecipe(i) {
-        let db = JSON.parse(localStorage.getItem('olcekle_db') || '[]');
-        db.splice(i, 1);
-        localStorage.setItem('olcekle_db', JSON.stringify(db));
+    function loadRecipe(id) {
+        const db = JSON.parse(localStorage.getItem('olcekle_final')) || [];
+        const r = db.find(x => x.id === id);
+        if(r) {
+            document.getElementById('recipeName').value = r.name;
+            document.getElementById('baseServings').value = r.base;
+            document.getElementById('ingredientList').innerHTML = "";
+            r.ing.forEach(i => addRow(i.a, i.u, i.n));
+            calculate();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    }
+
+    function deleteRecipe(id) {
+        let db = JSON.parse(localStorage.getItem('olcekle_final')) || [];
+        db = db.filter(x => x.id !== id);
+        localStorage.setItem('olcekle_final', JSON.stringify(db));
         renderArchive();
     }
 
-    let tempSug = null;
     function showRandomRecipe() {
         const pool = [
-            { name: "Mercimek Çorbası", base: 4, ing: [{a:1, u:"Bardak", n:"Mercimek"}, {a:1, u:"Adet", n:"Soğan"}] },
-            { name: "Pankek", base: 2, ing: [{a:1, u:"Adet", n:"Yumurta"}, {a:1, u:"Bardak", n:"Süt"}] }
+            { name: currentLang === 'tr' ? "Mercimek Çorbası" : "Lentil Soup", icon: "🥣", base: 4, ing: [{a:1, u:langs[currentLang].units[2], n: currentLang === 'tr' ? "Mercimek" : "Lentils"}] },
+            { name: currentLang === 'tr' ? "Pankek" : "Pancakes", icon: "🥞", base: 2, ing: [{a:1, u:langs[currentLang].units[6], n: currentLang === 'tr' ? "Yumurta" : "Egg"}] }
         ];
-        tempSug = pool[Math.floor(Math.random()*pool.length)];
-        document.getElementById('sTitle').innerText = tempSug.name;
-        document.getElementById('sIngList').innerText = tempSug.ing.map(i => `• ${i.a} ${i.u} ${i.n}`).join('\n');
-        document.getElementById('suggestModal').style.display = 'block';
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        document.getElementById('sTitle').innerText = r.name;
+        document.getElementById('sIngList').innerText = r.ing.map(i => `• ${i.a} ${i.u} ${i.n}`).join('\n');
+        document.getElementById('suggestModal').style.display = "block";
+        document.getElementById('applyBtn').onclick = () => {
+            document.getElementById('recipeName').value = r.name;
+            document.getElementById('baseServings').value = r.base;
+            document.getElementById('ingredientList').innerHTML = "";
+            r.ing.forEach(i => addRow(i.a, i.u, i.n));
+            calculate();
+            closeModal();
+        };
     }
 
-    function applySuggestion() {
-        document.getElementById('recipeName').value = tempSug.name;
-        document.getElementById('baseServings').value = tempSug.base;
-        document.getElementById('ingredientList').innerHTML = '';
-        tempSug.ing.forEach(i => addRow(i.a, i.u, i.n));
-        calculate();
-        closeModal();
-    }
-
-    function closeModal() { document.getElementById('suggestModal').style.display = 'none'; }
-
+    function closeModal() { document.getElementById('suggestModal').style.display = "none"; }
     window.onload = () => { updateUI(); addRow(); };
 </script>
 </body>
